@@ -1,0 +1,39 @@
+{
+    "name": "n695-dev-plat-web",
+    "version": "1.0.0",
+    "main": "src/app.ts",
+    "repository": "git@github.com:ViniciusLinharesAO/N695-Dev-plat-web-21-backend.git",
+    "author": "Vinicius Linhares <vinicius.linhares@aluno.uece.br>",
+    "license": "MIT",
+    "scripts": {
+        "build": "rm -rf build && yarn tsc -p tsconfig.prod.json && tsc-alias -p tsconfig.prod.json",
+        "start": "node .",
+        "dev": "yarn ts-node-dev . -r tsconfig-paths/register -r dotenv/config src/index.ts --respawn",
+        "docker:up": "docker-compose up -d",
+        "format:check": "yarn prettier --check ./src/**/*.ts",
+        "format": "yarn prettier --write './src/**/*.ts'",
+        "lint": "yarn tsc -p tsconfig.json && yarn tsc -p tsconfig.prod.json && rm -rf build"
+    },
+    "dependencies": {
+        "cors": "2.8.5",
+        "dotenv": "16.4.5",
+        "express": "4.19.2",
+        "helmet": "7.1.0",
+        "mongodb": "6.6.1",
+        "pino": "9.1.0",
+        "ts-node": "^10.9.2",
+        "typescript": "5.4.5",
+        "zod": "3.23.8"
+    },
+    "devDependencies": {
+        "@types/cors": "2.8.17",
+        "@types/dotenv": "8.2.0",
+        "@types/express": "4.17.21",
+        "@types/helmet": "4.0.0",
+        "@types/node": "20.12.11",
+        "prettier": "3.2.5",
+        "ts-node-dev": "2.0.0",
+        "tsc-alias": "1.8.9",
+        "tsconfig-paths": "4.2.0"
+    }
+}

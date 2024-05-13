@@ -1,0 +1,43 @@
+{
+  "buildOptions": {
+    "verbose": true
+  },
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "module": "commonJs",
+    "alwaysStrict": true,
+    "composite": false,
+    "downlevelIteration": true,
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "lib": ["ESNext"],
+    "moduleResolution": "Node",
+    "noErrorTruncation": false,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitAny": true,
+    "noUnusedLocals": true,
+    "outDir": "./build",
+    "paths": {
+      "@lib/*": ["./src/lib/*"],
+      "@common/*": ["./src/api/common/*"],
+      "@http/*": ["./src/api/http/*"],
+      "@infra/*": ["./src/infra/*"],
+      "@errors/*": ["./src/errors/*"],
+    },
+    "preserveConstEnums": true,
+    "skipDefaultLibCheck": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "strictBindCallApply": true,
+    "strictFunctionTypes": true,
+    "strictNullChecks": true,
+    "strictPropertyInitialization": true,
+    "target": "ESNext",
+    "useUnknownInCatchVariables": true,
+    "resolveJsonModule": true,
+    "baseUrl": "."
+  },
+  "include": ["./src"]
+}

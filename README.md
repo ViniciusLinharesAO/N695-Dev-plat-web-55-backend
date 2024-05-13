@@ -1,0 +1,1 @@
+Projeto backend feito pela equipe 55 para disciplina "N695-Desenv plataformas web".
