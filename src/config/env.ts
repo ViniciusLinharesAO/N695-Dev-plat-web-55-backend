@@ -1,20 +1,34 @@
-const env = process.env;
-export const requiredEnvs: string[] = [];
+declare global {
+    namespace NodeJS {
+        interface ProcessEnv {
+            HTTP_PORT?: string;
+            MONGO_DB_CONN_STRING?: string;
+            MONGO_DB_NAME?: string;
 
-const requiredEnv = (envName: string) => {
-    requiredEnvs.push(envName);
-    return env[envName]!;
-};
+            LOGGER_LEVEL: "silent" | "info" | "warn" | "error" | "fatal";
+        }
+    }
+}
 
-export const checkRequiredEnvs = () =>
-    requiredEnvs.reduce<Error[]>((result, env) => {
-        const errors = [...result];
-        if (!(env in process.env)) errors.push(new Error(`Missing required env: ${env}`));
+export namespace Env {
+    export const requiredEnvs: string[] = [];
 
-        return errors;
-    }, []);
+    const requiredEnv = (envName: string) => {
+        requiredEnvs.push(envName);
+        return process.env[envName] ?? envName;
+    };
 
-export const NODE_ENV = env.NODE_ENV || "development";
-export const LOGGER_LEVEL = env.LOGGER_LEVEL || "info";
-export const MONGO_DB_CONN_STRING = requiredEnv("MONGO_DB_CONN_STRING");
-export const MONGO_DB_NAME = requiredEnv("MONGO_DB_NAME");
+    export const checkRequiredEnvs = () => {
+        const errors = requiredEnvs.reduce((result, env) => {
+            if (!(env in process.env)) result.push(new Error(`Missing required env: ${env}`));
+            return result;
+        }, new Array<Error>());
+        for (const error of errors) console.error(error);
+        if (errors.length !== 0) process.exit(1);
+    };
+
+    export const HTTP_PORT = Number.parseInt(process.env.HTTP_PORT ?? "4000", 10);
+    export const LOGGER_LEVEL = process.env.LOGGER_LEVEL ?? "info";
+    export const MONGO_DB_CONN_STRING = requiredEnv("MONGO_DB_CONN_STRING") ?? "";
+    export const MONGO_DB_NAME = requiredEnv("MONGO_DB_NAME") ?? "";
+}

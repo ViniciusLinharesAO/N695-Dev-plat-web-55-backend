@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from "express";
-import { Logger } from "../../infra/logger";
 import { AppError } from "./../../errors/appErrors";
 import { CreateUserReqBody, RequestParams, RequestResponse, PaginatedResponse, PaginateQuery } from "./users.models";
 import { UsersService } from "./users.service";
+import { StatusCode } from "../http/status-code";
 
 export namespace UserController {
     export const updateUser = async (
@@ -14,16 +14,22 @@ export namespace UserController {
             const { id } = req.params;
             const { email, password } = req.body;
             const result = await UsersService.updateUser(id, email, password);
-            return res.status(200).json({ success: true, message: "", items: [result] });
+            return res
+                .status(StatusCode.OK)
+                .json({ success: true, message: "usuários atualizado com sucesso", items: [result] });
         } catch (error: unknown) {
-            Logger.error("Failed to update user", error);
+            console.error("Failed to update user", error);
             if (error instanceof AppError)
-                return res.status(error.status === undefined ? 500 : error.status).json({
+                return res.status(error.status === undefined ? StatusCode.INTERNAL_SERVER_ERROR : error.status).json({
                     success: false,
                     message: error.message,
                     items: [],
                 });
-            throw error;
+            return res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+                success: false,
+                message: "unexpected error",
+                items: [],
+            });
         }
     };
 
@@ -34,17 +40,23 @@ export namespace UserController {
     ) => {
         try {
             const { id } = req.params;
-            await UsersService.deleteUser(id);
-            return res.status(200).json({ success: true, message: "", items: [] });
+            const result = await UsersService.deleteUser(id);
+            return res
+                .status(StatusCode.OK)
+                .json({ success: true, message: `usuário com email ${result} deletado com sucesso`, items: [] });
         } catch (error: unknown) {
-            Logger.error("Failed to update user", error);
+            console.error("Failed to update user", error);
             if (error instanceof AppError)
-                return res.status(error.status === undefined ? 500 : error.status).json({
+                return res.status(error.status === undefined ? StatusCode.INTERNAL_SERVER_ERROR : error.status).json({
                     success: false,
                     message: error.message,
                     items: [],
                 });
-            throw error;
+            return res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+                success: false,
+                message: "unexpected error",
+                items: [],
+            });
         }
     };
 
@@ -54,12 +66,14 @@ export namespace UserController {
         next: NextFunction,
     ) => {
         try {
-            const { pageNumber, pageSize } = req.query;
+            let { pageNumber, pageSize } = req.query;
+            pageNumber = pageNumber ? pageNumber : 1;
+            pageSize = pageSize ? pageSize : 10;
             const [users, totalItems] = await Promise.all([
                 await UsersService.listUsers(pageNumber, pageSize),
                 await UsersService.countUsers(),
             ]);
-            return res.status(200).json({
+            return res.status(StatusCode.OK).json({
                 success: true,
                 message: "",
                 items: users,
@@ -68,9 +82,9 @@ export namespace UserController {
                 totalItems,
             });
         } catch (error: unknown) {
-            Logger.error("Failed to update user", error);
+            console.error("Failed to update user", error);
             if (error instanceof AppError)
-                return res.status(error.status === undefined ? 500 : error.status).json({
+                return res.status(error.status === undefined ? StatusCode.INTERNAL_SERVER_ERROR : error.status).json({
                     success: false,
                     message: error.message,
                     items: [],
@@ -78,7 +92,14 @@ export namespace UserController {
                     pageSize: 0,
                     totalItems: 0,
                 });
-            throw error;
+            return res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+                success: false,
+                message: "unexpected error",
+                items: [],
+                pageNumber: 0,
+                pageSize: 0,
+                totalItems: 0,
+            });
         }
     };
 }

@@ -1,22 +1,19 @@
-import express from "express";
-import * as dotenv from "dotenv";
+import express, { Application, Express } from "express";
+import { Server as HttpServer } from "http";
 import cors from "cors";
 import helmet from "helmet";
-import routes from "./routes"
+import routes from "./api/routes";
 
-dotenv.config();
+export type ServerType = { http: HttpServer; express: Express };
 
-if (!process.env.PORT) {
-    process.exit(1);
+export namespace Server {
+    export function init() {
+        const app = express();
+        app.use(helmet()).use(cors()).use(express.json()).use(routes);
+        return app;
+    }
+
+    export function listen(app: Application, port: number, callback?: () => void) {
+        return app.listen(port, callback);
+    }
 }
-const PORT: number = parseInt(process.env.PORT as string, 10);
-
-const app = express();
-app.use(helmet())
-    .use(cors())
-    .use(express.json())
-    .use(routes)
-
-app.listen(PORT, () => {
-    console.log(`server running on port ${PORT}`);
-});

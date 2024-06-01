@@ -1,27 +1,44 @@
-import db from "./../../infra/database";
+import { ObjectId } from "mongodb";
+import userDB from "./../../infra/database";
+import { AppError } from "../../errors/appErrors";
+import { StatusCode } from "../http/status-code";
+import { ErrorCodes } from "../common/errors";
 
 export namespace UsersService {
-    const userDB = db.connectToDatabase("users");
-
     export const updateUser = async (id: string, email: string, password: string) => {
-        const filter = { id };
-        return await (await userDB).findOneAndUpdate(filter, { id, email, password });
+        const filter = { _id: new ObjectId(id) };
+        const result = await (await userDB).findOneAndReplace(filter, { _id: new ObjectId(id), email, password });
+        if (result == null) {
+            throw new AppError(StatusCode.NOT_FOUND, "usuário não encontrado", ErrorCodes.API.NotFound);
+        }
+        return { _id: result!._id.toString(), email: result!.email };
     };
 
     export const deleteUser = async (id: string) => {
-        const filter = { id };
-        return await (await userDB).deleteOne(filter);
+        const filter = { _id: new ObjectId(id) };
+        const result = await (await userDB).findOneAndDelete(filter);
+        if (result == null) {
+            throw new AppError(StatusCode.NOT_FOUND, "usuário não encontrado", ErrorCodes.API.NotFound);
+        }
+        return result!.email;
     };
 
-    export const listUsers = async (pageNumber: number, pageSize: number) => {
-        return await (
+    export const listUsers = async (
+        pageNumber: number,
+        pageSize: number,
+    ): Promise<Array<{ _id: string; email: string }>> => {
+        const results = await (
             await userDB
         )
             .find()
-            .sort("id")
-            .skip(pageNumber * pageSize)
+            .sort("_id")
+            .skip((pageNumber - 1) * pageSize)
             .limit(pageSize)
             .toArray();
+
+        return results.map((result) => {
+            return { _id: result._id.toString(), email: result.email };
+        });
     };
 
     export const countUsers = async () => {
