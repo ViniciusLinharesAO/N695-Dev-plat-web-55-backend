@@ -2,6 +2,7 @@ export type RequestParams = {
     id: string;
 };
 export type CreateUserReqBody = {
+    name: string;
     email: string;
     password: string;
 };

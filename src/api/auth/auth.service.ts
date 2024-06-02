@@ -8,10 +8,10 @@ import { MongoServerError } from "mongodb";
 import { SECRET_KEY } from "./../common/auth";
 
 export namespace AuthService {
-    export const createUser = async (email: string, password: string): Promise<string> => {
+    export const createUser = async (name: string, email: string, password: string): Promise<string> => {
         try {
             const hashedPassword = await bcrypt.hash(password, 10);
-            const result = await (await userDB).insertOne({ email, password: hashedPassword });
+            const result = await (await userDB).insertOne({ name, email, password: hashedPassword });
             return result.insertedId.toString();
         } catch (error) {
             if (error instanceof MongoServerError) {
@@ -24,7 +24,7 @@ export namespace AuthService {
     export const loginUser = async (
         email: string,
         password: string,
-    ): Promise<{ user: { id: string; email: string }; token: string }> => {
+    ): Promise<{ user: { _id: string; name: string; email: string }; token: string }> => {
         try {
             const filter = { email };
             const result = await (await userDB).findOne(filter);
@@ -36,7 +36,7 @@ export namespace AuthService {
                 expiresIn: "2 days",
             });
 
-            return { user: { id: result!._id?.toString(), email: result!.email }, token: token };
+            return { user: { _id: result!._id?.toString(), name: result!.name, email: result!.email }, token: token };
         } catch (error) {
             if (error instanceof MongoServerError) {
                 throw new AppError(StatusCode.BAD_REQUEST, error.message, ErrorCodes.API.Validation);

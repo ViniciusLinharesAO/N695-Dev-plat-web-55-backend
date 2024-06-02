@@ -5,13 +5,13 @@ import { StatusCode } from "../http/status-code";
 import { ErrorCodes } from "../common/errors";
 
 export namespace UsersService {
-    export const updateUser = async (id: string, email: string, password: string) => {
+    export const updateUser = async (id: string, name: string, email: string, password: string) => {
         const filter = { _id: new ObjectId(id) };
-        const result = await (await userDB).findOneAndReplace(filter, { _id: new ObjectId(id), email, password });
+        const result = await (await userDB).findOneAndReplace(filter, { _id: new ObjectId(id), name, email, password });
         if (result == null) {
             throw new AppError(StatusCode.NOT_FOUND, "usuário não encontrado", ErrorCodes.API.NotFound);
         }
-        return { _id: result!._id.toString(), email: result!.email };
+        return { _id: result!._id.toString(), name: result!.name, email: result!.email };
     };
 
     export const deleteUser = async (id: string) => {
@@ -37,7 +37,7 @@ export namespace UsersService {
             .toArray();
 
         return results.map((result) => {
-            return { _id: result._id.toString(), email: result.email };
+            return { _id: result._id.toString(), name: result.name, email: result.email };
         });
     };
 

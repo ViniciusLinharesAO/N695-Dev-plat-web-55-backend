@@ -10,7 +10,7 @@ namespace db {
         const client: mongoDB.MongoClient = new mongoDB.MongoClient(Env.MONGO_DB_CONN_STRING);
         await client.connect();
 
-        const db: mongoDB.Db = client.db(await Env.MONGO_DB_NAME);
+        const db: mongoDB.Db = client.db(Env.MONGO_DB_NAME);
         console.log(`Successfully connected to database: ${db.databaseName}`);
 
         const collection: mongoDB.Collection = db.collection(targetCollection);
